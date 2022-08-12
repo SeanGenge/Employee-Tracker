@@ -1,0 +1,25 @@
+{
+  "name": "Employee-Tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SeanGenge/Employee-Tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SeanGenge/Employee-Tracker/issues"
+  },
+  "homepage": "https://github.com/SeanGenge/Employee-Tracker#readme",
+  "dependencies": {
+    "inquirer": "^9.1.0",
+    "mysql2": "^2.3.3"
+  }
+}
