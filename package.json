@@ -4,9 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node src/app.js"
+    "start": "node src/App.js"
   },
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SeanGenge/Employee-Tracker.git"
@@ -19,7 +18,8 @@
   },
   "homepage": "https://github.com/SeanGenge/Employee-Tracker#readme",
   "dependencies": {
-    "inquirer": "^9.1.0",
+    "console.table": "^0.10.0",
+    "inquirer": "^6.5.0",
     "mysql2": "^2.3.3"
   }
 }
