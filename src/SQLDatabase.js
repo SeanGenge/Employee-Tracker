@@ -65,23 +65,30 @@ SQLDatabase.prototype.insertIntoTable = function(table, data) {
 };
 
 // Update data in a table
-// SQLDatabase.prototype.updateTable = function(table, data) {
-//     return new Promise((resolve, reject) => {
-//         let columns = Object.keys(data).map(i => `??`).join(", ");
-//         let values = Object.values(data).map(i => `?`).join(", ");
+SQLDatabase.prototype.updateTable = function(table, data) {
+    return new Promise((resolve, reject) => {
+        // Separate the update object from the actual data object
+        // The update object are the values that you want to update and the data object is the where condition
+        let { update, ...rest } = data;
+        let setCondition = Object.keys(update).map(i => `?? = ?`).join(" AND ");
+        let whereCondition = Object.values(rest).map(i => `?? = ?`).join(" AND ");
         
-//         const query = `UPDATE ?? SET (${columns}) WHERE (${values})`;
+        const query = `UPDATE ?? SET ${setCondition} WHERE ${whereCondition}`;
         
-//         this.db.query(query, [table, ...Object.keys(data), ...Object.values(data)], (err, result) => {
-//             if (err) {
-//                 reject(err);
-//             }
-//             else {
-//                 resolve(result);
-//             }
-//         });
-//     });
-// };
+        // What does this do? ...Object.entries(update).flat()
+        // Basically Object.entries(update) retrieves a list of [key, value] pairs that are stored in a list like so [ [key1, value1], [key2, value2] ]
+        // We would want to remove the outer array and so we use flat to do so which will now store the values as [key1, value1, key2, value2]
+        // Finally to remove the last array, we use the spread operator ...
+        this.db.query(query, [table, ...Object.entries(update).flat(), ...Object.entries(rest).flat()], (err, result) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                resolve(result);
+            }
+        });
+    });
+};
 
 // Delete from a table
 

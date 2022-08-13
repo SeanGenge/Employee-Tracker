@@ -13,7 +13,7 @@ const App = function() {
     
     this.mainOptions = ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "quit"];
     
-    // The question that will be asked
+    // The questions that will be asked
     this.mainQuestion = [
         {
             type: "list",
@@ -69,6 +69,26 @@ const App = function() {
             name: "employee_manager_id",
             when: (answers) => answers.mainOption.toLowerCase() === "add an employee"
         },
+        {
+            type: "list",
+            message: "Employee you want to update:",
+            name: "update_employee_name",
+            when: (answers) => answers.mainOption.toLowerCase() === "update an employee role",
+            choices: async () => {
+                let employees = await this.viewAllEmployees();
+                employees = employees.map(i => `Name: ${i.first_name} ${i.last_name} role_id: ${i.role_id} manager_id: ${i.manager_id}`);
+                // Allow an option to go back if you want to
+                employees.push("back");
+                
+                return employees;
+            }
+        },
+        {
+            type: "input",
+            message: "Updated role:",
+            name: "update_new_role",
+            when: (answers) => answers.mainOption.toLowerCase() === "update an employee role" && answers.update_employee_name !== "back",
+        },
     ];
 };
 
@@ -88,22 +108,27 @@ App.prototype.startApp = async function() {
             // Check what option was selected
             switch (answers.mainOption.toLowerCase()) {
                 case "view all departments":
-                    await this.viewAllDepartments();
+                    console.table(await this.viewAllDepartments());
                     break;
                 case "view all roles":
-                    await this.viewAllRoles();
+                    console.table(await this.viewAllRoles());
                     break;
                 case "view all employees":
-                    await this.viewAllEmployees();
+                    console.table(await this.viewAllEmployees());
                     break;
                 case "add a department":
-                    await this.addADepartment(answers);
+                    console.table(await this.addADepartment(answers));
                     break;
                 case "add a role":
-                    await this.addARole(answers);
+                    console.table(await this.addARole(answers));
                     break;
                 case "add an employee":
-                    await this.addAnEmployee(answers);
+                    console.table(await this.addAnEmployee(answers));
+                    break;
+                case "update an employee role":
+                    // Exit if the back option is chosen
+                    if (answers.update_employee_name === "back") break;
+                    console.table(await this.updateEmployeeRole(answers));
                     break;
             }
         })
@@ -118,32 +143,32 @@ App.prototype.startApp = async function() {
 }
 
 App.prototype.viewAllDepartments = async function() {
-    await this.companyDB.viewTable("departments")
+    return await this.companyDB.viewTable("departments")
     .then((result) => {
-        console.table(result);
+        return result;
     })
     .catch((err) => {
-        console.error(err);
+        return err;
     });
 }
 
 App.prototype.viewAllRoles = async function() {
-    await this.companyDB.viewTable("roles")
+    return await this.companyDB.viewTable("roles")
     .then((result) => {
-        console.table(result);
+        return result;
     })
     .catch((err) => {
-        console.error(err);
+        return err;
     });
 }
 
 App.prototype.viewAllEmployees = async function() {
-    await this.companyDB.viewTable("employees")
+    return await this.companyDB.viewTable("employees")
     .then((result) => {
-        console.table(result);
+        return result;
     })
     .catch((err) => {
-        console.error(err);
+        return err;
     });
 }
 
@@ -192,6 +217,27 @@ App.prototype.addAnEmployee = async function(answers) {
     }
     
     await this.companyDB.insertIntoTable("employees", employee)
+    .then((result) => {
+        console.log("Department added successfully");
+    })
+    .catch((err) => {
+        console.error(err);
+    });
+}
+
+App.prototype.updateEmployeeRole = async function(answers) {
+    // Split the employee details you want to search for
+    let employeeToUpdate = answers.update_employee_name.split(" ");
+    const employeeUpdate = {
+        "first_name": employeeToUpdate[1],
+        "last_name": employeeToUpdate[2],
+        "role_id": employeeToUpdate[employeeToUpdate.findIndex(i => i === "role_id:") + 1],
+        "manager_id": employeeToUpdate[employeeToUpdate.findIndex(i => i === "manager_id:") + 1],
+        // The updated values
+        "update": { "role_id": answers.update_new_role, }
+    }
+    
+    await this.companyDB.updateTable("employees", employeeUpdate)
     .then((result) => {
         console.log("Department added successfully");
     })
