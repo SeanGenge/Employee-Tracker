@@ -22,28 +22,55 @@ SQLDatabase.prototype.endConnection = function() {
     this.db.end();
 };
 
-// View tables
+// View table
 SQLDatabase.prototype.tableViewAll = function(table) {
     // Create a promise and return the query results
     return new Promise((resolve, reject) => {
         // ?? is used to escape the ' character in strings
         // Using a prepared statement to prevent SQL injection
-        this.db.query(`SELECT * FROM ??`, table, (err, result) => {
+        const query = `SELECT * FROM ??`;
+        
+        this.db.query(query, table, (err, result) => {
             if (err) {
                 reject(err);
             }
             else {
-                // Return the results
+                // No error occured and the query was successful. Return the results
                 resolve(result);
             }
         });
     });
 };
 
-// Add to a table
-// SQLDatabase.prototype.addToTable = function(table, data) {
+// Add data to a table
+SQLDatabase.prototype.insertIntoTable = function(table, data) {
+    return new Promise((resolve, reject) => {
+        // The order from Object.Keys and Object.values will be the same
+        let columns = Object.keys(data).map(i => `??`).join(", ");
+        let values = Object.values(data).map(i => `?`).join(", ");
+        
+        const query = `INSERT INTO ?? (${columns}) VALUES (${values})`;
+        
+        this.db.query(query, [table, ...Object.keys(data), ...Object.values(data)], (err, result) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                resolve(result);
+            }
+        });
+    });
+};
+
+// Update data in a table
+// SQLDatabase.prototype.updateTable = function(table, data) {
 //     return new Promise((resolve, reject) => {
-//         this.db.query(`SELECT * FROM ${table}`, (err, result) => {
+//         let columns = Object.keys(data).map(i => `??`).join(", ");
+//         let values = Object.values(data).map(i => `?`).join(", ");
+        
+//         const query = `UPDATE ?? SET (${columns}) WHERE (${values})`;
+        
+//         this.db.query(query, [table, ...Object.keys(data), ...Object.values(data)], (err, result) => {
 //             if (err) {
 //                 reject(err);
 //             }
@@ -53,8 +80,6 @@ SQLDatabase.prototype.tableViewAll = function(table) {
 //         });
 //     });
 // };
-
-// Update a table
 
 // Delete from a table
 

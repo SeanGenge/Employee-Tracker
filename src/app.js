@@ -6,8 +6,8 @@ const tableView = require('console.table');
 const App = function() {
     // Retrieve the user and password from the console. If none is passed, pass in the default
     this.host = "localhost";
-    this.root = process.argv[2] ? process.argv[2] : "root";
-    this.password = process.argv[3] ? process.argv[3] : "password";
+    this.root = process.argv[2] ? process.argv[2] : "user";
+    this.password = process.argv[3] ? process.argv[3] : "password123";
     this.db = "company_db"
     this.companyDB = new SQLDatabase(this.host, this.root, this.password, this.db);
     
@@ -42,14 +42,6 @@ App.prototype.startApp = async function() {
             console.error(err);
         });
     }
-    
-    this.companyDB.tableViewAll("employees")
-    .then((result) => {
-        console.log(result);
-    })
-    .catch((err) => {
-        console.log(err);
-    });
     
     // Close the connection so the program can end
     this.companyDB.endConnection();
