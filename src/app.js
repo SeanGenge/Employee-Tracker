@@ -31,11 +31,48 @@ App.prototype.startApp = async function() {
     while (!finished) {
         await inquirer
         .prompt(this.mainQuestion)
-        .then((answers) => {
+        .then(async (answers) => {
             // Quit if the answer is the last option
             if (answers.selectedOption === this.mainOptions[this.mainOptions.length - 1]) {
                 finished = true;
             }
+            
+            // Add some line breaks to make readability easier
+            if (!finished) console.log("\n");
+            
+            // Check what option was selected
+            switch (answers.selectedOption.toLowerCase()) {
+                case "view all departments":
+                    await this.companyDB.viewTable("departments")
+                    .then((result) => {
+                        console.table(result);
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                    });
+                    break;
+                case "view all roles":
+                    await this.companyDB.viewTable("roles")
+                    .then((result) => {
+                        console.table(result);
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                    });
+                    break;
+                case "view all employees":
+                    await this.companyDB.viewTable("employees")
+                    .then((result) => {
+                        console.table(result);
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                    });
+                    break;
+            }
+            
+            // Add some line breaks to make readability easier
+            if (!finished) console.log("\n");
         })
         .catch((err) => {
             console.error("An error occured!");

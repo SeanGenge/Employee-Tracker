@@ -1,10 +1,12 @@
 const mySQL = require('mysql2');
 
+// TODO: Can add some joining functionality to display the foreign key data instead of the id
+
 // A general or "template" class for SQL connection and queries
 const SQLDatabase = function(host, user, password, database) {
     // Connect to the database
     // TODO: Perhaps in a different version, can check if a successful connection is made
-    // If not, throw an error
+    // If not, throw and catch an error. Tried this but was unable to
     this.db = mySQL.createConnection(
         {
             host: host,
@@ -23,7 +25,7 @@ SQLDatabase.prototype.endConnection = function() {
 };
 
 // View table
-SQLDatabase.prototype.tableViewAll = function(table) {
+SQLDatabase.prototype.viewTable = function(table) {
     // Create a promise and return the query results
     return new Promise((resolve, reject) => {
         // ?? is used to escape the ' character in strings
