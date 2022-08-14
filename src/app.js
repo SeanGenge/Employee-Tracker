@@ -239,7 +239,7 @@ App.prototype.updateEmployeeRole = async function(answers) {
     
     await this.companyDB.updateTable("employees", employeeUpdate)
     .then((result) => {
-        console.log("Department added successfully");
+        console.log(`Updated ${employeeToUpdate[1]} ${employeeToUpdate[2]}'s role`);
     })
     .catch((err) => {
         console.error(err);
