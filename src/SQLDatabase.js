@@ -44,7 +44,7 @@ SQLDatabase.prototype.viewTable = function(table) {
     });
 };
 
-// For more flexible queries like joins. Can pass a whole query over
+// For more complex and flexible queries, for example multiple joins. Use this
 // Warning: May be vulnerable to SQL injection
 SQLDatabase.prototype.query = function(data) {
     // Data is an object to make it easier to add more options later or to make it a prepared statement

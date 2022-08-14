@@ -11,7 +11,7 @@ const App = function() {
     this.db = "company_db"
     this.companyDB = new SQLDatabase(this.host, this.root, this.password, this.db);
     
-    this.mainOptions = ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "quit"];
+    this.mainOptions = ["View all departments", "View all roles", "View all employees", "View employees by department", "Add a department", "Add a role", "Add an employee", "Update an employee role", "quit"];
     
     // The questions that will be asked
     this.mainQuestion = [
@@ -89,6 +89,20 @@ const App = function() {
             name: "update_new_role",
             when: (answers) => answers.mainOption.toLowerCase() === "update an employee role" && answers.update_employee_name !== "back",
         },
+        {
+            type: "list",
+            message: "Department you want to view employees by:",
+            name: "view_employee_by_department",
+            when: (answers) => answers.mainOption.toLowerCase() === "view employees by department",
+            choices: async () => {
+                let departments = await this.viewAllDepartments();
+                departments = departments.map(i => `Id: ${i.id} Department_name: ${i.name}`);
+                // Allow an option to go back if you want to
+                departments.push("back");
+                
+                return departments;
+            }
+        },
     ];
 };
 
@@ -97,7 +111,7 @@ App.prototype.startApp = async function() {
     let finished = false;
     
     while (!finished) {
-        const questionAnswers = await inquirer
+        await inquirer
         .prompt(this.mainQuestion)
         .then(async (answers) => {
             // Quit if the answer is the last option
@@ -129,6 +143,11 @@ App.prototype.startApp = async function() {
                     // Exit if the back option is chosen
                     if (answers.update_employee_name === "back") break;
                     console.table(await this.updateEmployeeRole(answers));
+                    break;
+                case "view employees by department":
+                    // Exit if the back option is chosen
+                    if (answers.view_employee_by_department === "back") break;
+                    console.table(await this.viewEmployeesByDepartment(answers));
                     break;
             }
         })
@@ -248,6 +267,21 @@ App.prototype.updateEmployeeRole = async function(answers) {
     })
     .catch((err) => {
         console.error(err);
+    });
+}
+
+App.prototype.viewEmployeesByDepartment = async function(answers) {
+    // Split the department details you want to search for
+    let departmentId = answers.view_employee_by_department.split(" ")[1];
+    
+    return await this.companyDB.query({
+        query: `SELECT e.id, e.first_name, e.last_name, r.title role, d.name department, r.salary, CONCAT(e.first_name, " ", e.last_name) manager_name FROM employees e LEFT JOIN roles r ON r.id = e.role_id JOIN departments d ON r.department_of = d.id AND d.id = '${departmentId}'`
+    })
+    .then((result) => {
+        return result;
+    })
+    .catch((err) => {
+        return err;
     });
 }
 
