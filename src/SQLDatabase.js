@@ -24,7 +24,7 @@ SQLDatabase.prototype.endConnection = function() {
     this.db.end();
 };
 
-// View table
+// Simple View table
 SQLDatabase.prototype.viewTable = function(table) {
     // Create a promise and return the query results
     return new Promise((resolve, reject) => {
@@ -33,6 +33,24 @@ SQLDatabase.prototype.viewTable = function(table) {
         const query = `SELECT * FROM ??`;
         
         this.db.query(query, table, (err, result) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                // No error occured and the query was successful. Return the results
+                resolve(result);
+            }
+        });
+    });
+};
+
+// For more flexible queries like joins. Can pass a whole query over
+// Warning: May be vulnerable to SQL injection
+SQLDatabase.prototype.query = function(data) {
+    // Data is an object to make it easier to add more options later or to make it a prepared statement
+    // Create a promise and return the query results
+    return new Promise((resolve, reject) => {
+        this.db.query(data.query, (err, result) => {
             if (err) {
                 reject(err);
             }

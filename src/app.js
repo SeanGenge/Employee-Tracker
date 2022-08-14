@@ -153,7 +153,10 @@ App.prototype.viewAllDepartments = async function() {
 }
 
 App.prototype.viewAllRoles = async function() {
-    return await this.companyDB.viewTable("roles")
+    // Using left join to allow displaying nulls for department name if a record was deleted
+    return await this.companyDB.query({
+        query: `SELECT r.id, r.title, r.salary, d.name department_name FROM roles r LEFT JOIN departments d ON r.department_of = d.id`
+    })
     .then((result) => {
         return result;
     })
@@ -163,7 +166,9 @@ App.prototype.viewAllRoles = async function() {
 }
 
 App.prototype.viewAllEmployees = async function() {
-    return await this.companyDB.viewTable("employees")
+    return await this.companyDB.query({
+        query: `SELECT e.id, e.first_name, e.last_name, r.title role, d.name department, r.salary, CONCAT(e.first_name, " ", e.last_name) manager_name FROM employees e LEFT JOIN roles r ON r.id = e.role_id LEFT JOIN departments d ON r.department_of = d.id`
+    })
     .then((result) => {
         return result;
     })
