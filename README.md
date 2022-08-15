@@ -27,6 +27,8 @@ Adding employees
 - [Usage](#usage)
   
 - [License](#license)
+
+-[Video](#video)
   
 
 ## Installation
@@ -42,3 +44,6 @@ You can create a new user with the following details - user: user and password: 
 
 ## License
 This project is licensed under the [MIT](https://opensource.org/licenses/MIT) license
+
+## Video
+https://watch.screencastify.com/v/mZFbEUTCg3r7PnjtVJJt

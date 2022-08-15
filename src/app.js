@@ -274,11 +274,10 @@ App.prototype.addAnEmployee = async function(answers) {
 App.prototype.updateEmployeeRole = async function(answers) {
     // Split the employee details you want to search for
     let employeeToUpdate = answers.update_employee_name.split(" ");
+    
     const employeeUpdate = {
         "first_name": employeeToUpdate[1],
         "last_name": employeeToUpdate[2],
-        "role_id": employeeToUpdate[employeeToUpdate.findIndex(i => i === "role_id:") + 1],
-        "manager_id": employeeToUpdate[employeeToUpdate.findIndex(i => i === "manager_id:") + 1],
         // The updated values
         "update": { "role_id": answers.update_new_role, }
     }
