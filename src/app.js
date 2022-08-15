@@ -11,7 +11,7 @@ const App = function() {
     this.db = "company_db"
     this.companyDB = new SQLDatabase(this.host, this.root, this.password, this.db);
     
-    this.mainOptions = ["View all departments", "View all roles", "View all employees", "View employees by department", "Add a department", "Add a role", "Add an employee", "Update an employee role", "quit"];
+    this.mainOptions = ["View all departments", "View all roles", "View all employees", "View employees by department", "View employees by manager", "Add a department", "Add a role", "Add an employee", "Update an employee role", "quit"];
     
     // The questions that will be asked
     this.mainQuestion = [
@@ -76,7 +76,7 @@ const App = function() {
             when: (answers) => answers.mainOption.toLowerCase() === "update an employee role",
             choices: async () => {
                 let employees = await this.viewAllEmployees();
-                employees = employees.map(i => `Name: ${i.first_name} ${i.last_name} role_id: ${i.role_id} manager_id: ${i.manager_id}`);
+                employees = employees.map(i => `Name: ${i.first_name} ${i.last_name} role: ${i.role} manager_name: ${i.manager_name}`);
                 // Allow an option to go back if you want to
                 employees.push("back");
                 
@@ -101,6 +101,21 @@ const App = function() {
                 departments.push("back");
                 
                 return departments;
+            }
+        },
+        {
+            type: "list",
+            message: "Manager you want to view employees by:",
+            name: "view_employee_by_manager",
+            when: (answers) => answers.mainOption.toLowerCase() === "view employees by manager",
+            choices: async () => {
+                let employees = await this.viewAllEmployees();
+                
+                employees = employees.map(i => `Name: ${i.first_name} ${i.last_name} role: ${i.role} manager_name: ${i.manager_name}`);
+                // Allow an option to go back if you want to
+                employees.push("back");
+                
+                return employees;
             }
         },
     ];
@@ -149,6 +164,11 @@ App.prototype.startApp = async function() {
                     if (answers.view_employee_by_department === "back") break;
                     console.table(await this.viewEmployeesByDepartment(answers));
                     break;
+                case "view employees by manager":
+                    // Exit if the back option is chosen
+                    if (answers.view_employee_by_manager === "back") break;
+                    console.table(await this.viewEmployeesByManager(answers));
+                    break;
             }
         })
         .catch((err) => {
@@ -186,7 +206,7 @@ App.prototype.viewAllRoles = async function() {
 
 App.prototype.viewAllEmployees = async function() {
     return await this.companyDB.query({
-        query: `SELECT e.id, e.first_name, e.last_name, r.title role, d.name department, r.salary, CONCAT(e.first_name, " ", e.last_name) manager_name FROM employees e LEFT JOIN roles r ON r.id = e.role_id LEFT JOIN departments d ON r.department_of = d.id`
+        query: `SELECT e.id, e.first_name, e.last_name, r.title role, d.name department, r.salary, CONCAT(ee.first_name, " ", ee.last_name) manager_name FROM employees e LEFT JOIN roles r ON r.id = e.role_id LEFT JOIN departments d ON r.department_of = d.id INNER JOIN employees ee ON e.manager_id = ee.id`
     })
     .then((result) => {
         return result;
@@ -275,7 +295,22 @@ App.prototype.viewEmployeesByDepartment = async function(answers) {
     let departmentId = answers.view_employee_by_department.split(" ")[1];
     
     return await this.companyDB.query({
-        query: `SELECT e.id, e.first_name, e.last_name, r.title role, d.name department, r.salary, CONCAT(e.first_name, " ", e.last_name) manager_name FROM employees e LEFT JOIN roles r ON r.id = e.role_id JOIN departments d ON r.department_of = d.id AND d.id = '${departmentId}'`
+        query: `SELECT e.id, e.first_name, e.last_name, r.title role, d.name department, r.salary, CONCAT(ee.first_name, " ", ee.last_name) manager_name FROM employees e LEFT JOIN roles r ON r.id = e.role_id JOIN departments d ON r.department_of = d.id AND d.id = '${departmentId}' INNER JOIN employees ee ON e.manager_id = ee.id`
+    })
+    .then((result) => {
+        return result;
+    })
+    .catch((err) => {
+        return err;
+    });
+}
+
+App.prototype.viewEmployeesByManager = async function(answers) {
+    let managerDetails = answers.view_employee_by_manager.split(" ");
+    let managerNameIndex = managerDetails.findIndex(i => i === "manager_name:");
+    
+    return await this.companyDB.query({
+        query: `SELECT e.id, e.first_name, e.last_name, r.title role, d.name department, r.salary, CONCAT(ee.first_name, " ", ee.last_name) manager_name FROM employees e LEFT JOIN roles r ON r.id = e.role_id JOIN departments d ON r.department_of = d.id INNER JOIN employees ee ON e.manager_id = ee.id AND ee.first_name = '${managerDetails[managerNameIndex + 1]}' AND ee.last_name = '${managerDetails[managerNameIndex + 2]}'`
     })
     .then((result) => {
         return result;
