@@ -205,6 +205,8 @@ App.prototype.viewAllRoles = async function() {
 }
 
 App.prototype.viewAllEmployees = async function() {
+    // The query uses the inner join to get the correct manager name from the id (self join)
+    // There are two left joins to get the role title and department name. Left join was used to display null if there is no role title or department name
     return await this.companyDB.query({
         query: `SELECT e.id, e.first_name, e.last_name, r.title role, d.name department, r.salary, CONCAT(ee.first_name, " ", ee.last_name) manager_name FROM employees e LEFT JOIN roles r ON r.id = e.role_id LEFT JOIN departments d ON r.department_of = d.id INNER JOIN employees ee ON e.manager_id = ee.id`
     })
@@ -243,7 +245,7 @@ App.prototype.addARole = async function(answers) {
     
     await this.companyDB.insertIntoTable("roles", role)
     .then((result) => {
-        console.log("Department added successfully");
+        console.log("Role added successfully");
     })
     .catch((err) => {
         console.error(err);
@@ -262,7 +264,7 @@ App.prototype.addAnEmployee = async function(answers) {
     
     await this.companyDB.insertIntoTable("employees", employee)
     .then((result) => {
-        console.log("Department added successfully");
+        console.log("Employee added successfully");
     })
     .catch((err) => {
         console.error(err);
@@ -307,6 +309,7 @@ App.prototype.viewEmployeesByDepartment = async function(answers) {
 
 App.prototype.viewEmployeesByManager = async function(answers) {
     let managerDetails = answers.view_employee_by_manager.split(" ");
+    // Retrieve the starting location of the name index in the answer
     let managerNameIndex = managerDetails.findIndex(i => i === "manager_name:");
     
     return await this.companyDB.query({
