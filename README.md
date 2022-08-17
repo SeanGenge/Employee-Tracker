@@ -3,6 +3,16 @@
 
 ## Description
 Tracks your employees in a mySQL database. View and add departments, employees and roles on the command line
+  
+
+## Table of Contents
+- [Languages/Technologies used](#languagestechnologies-used)
+
+- [Installation](#installation)
+  
+- [Usage](#usage)
+  
+- [License](#license)
 
 Menu
 
@@ -19,17 +29,14 @@ Viewing employees by department
 Adding employees
 
 ![](./images/adding_employee.PNG)
-  
 
-## Table of Contents
-- [Installation](#installation)
-  
-- [Usage](#usage)
-  
-- [License](#license)
-
--[Video](#video)
-  
+## Languages/Technologies used
+ - HTML
+ - CSS
+ - JavaScript
+ - Inquirer
+ - mysql2
+ - Console.table
 
 ## Installation
 To install the necessary dependencies, run the following command:
@@ -44,6 +51,3 @@ You can create a new user with the following details - user: user and password: 
 
 ## License
 This project is licensed under the [MIT](https://opensource.org/licenses/MIT) license
-
-## Video
-https://watch.screencastify.com/v/mZFbEUTCg3r7PnjtVJJt
